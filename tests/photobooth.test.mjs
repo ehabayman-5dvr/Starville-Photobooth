@@ -1,4 +1,5 @@
 import test from 'node:test';
+import { mock } from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
@@ -6,6 +7,11 @@ import sharp from 'sharp';
 import { buildPrompt, modes } from '../shared/modes.mjs';
 import { composeLogo, generatePhoto, uploadPhoto, validateInput, incrementMetrics } from '../server/photobooth.mjs';
 import handler from '../api/generate.mjs';
+
+// Expected provider/metrics logs are noisy in lifecycle tests. Logging has its
+// own tests; keep large prompt entries out of Node 22's test-worker IPC stream.
+mock.method(console, 'info', () => {});
+mock.method(console, 'warn', () => {});
 
 const inputBytes = await sharp({ create: { width: 400, height: 700, channels: 3, background: '#e8c6b0' } }).jpeg().toBuffer();
 const image = `data:image/jpeg;base64,${inputBytes.toString('base64')}`;

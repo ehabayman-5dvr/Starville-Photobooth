@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import sharp from 'sharp';
 import { modes, buildPrompt } from '../shared/modes.mjs';
+import { logGenerationPrompt } from '../shared/logPrompt.mjs';
 
 const ROOT = process.cwd();
 export class BoothError extends Error {
@@ -76,10 +77,10 @@ export async function generatePhoto(body, { env = process.env, fetcher = fetch, 
   const id = randomUUID();
   const variation = modes[input.mode].variations[input.variation];
   const prompt = buildPrompt(input.mode, input.variation);
-  console.info('[Generation]', JSON.stringify({ id, mode: input.mode, variation: variation.name, model: 'gpt-image-2.5-flare', quality: env.OPENAI_QUALITY || 'high', preview }));
-  console.info('[Prompt]', prompt);
+  const promptDetails = { id, prompt, mode: modes[input.mode].name, variation: `${input.variation + 1}/3 · ${variation.name}` };
   let output;
   if (preview) {
+    logGenerationPrompt({ ...promptDetails, preview: true, quality: 'Local sample' });
     output = await readFile(path.join(ROOT, 'Generation-Reference', variation.file));
   } else {
     if (!env.OPENAI_API_KEY) throw new BoothError('Generation is not configured yet. Please try again later.', 503);
@@ -95,6 +96,7 @@ export async function generatePhoto(body, { env = process.env, fetcher = fetch, 
     let response;
     try {
       // Never retry paid generation automatically, including ambiguous timeouts.
+      logGenerationPrompt({ ...promptDetails, quality: String(form.get('quality')) });
       response = await fetcher('https://api.openai.com/v1/images/edits', { method: 'POST', headers: { Authorization: `Bearer ${env.OPENAI_API_KEY}` }, body: form, signal: AbortSignal.timeout(220_000) });
     } catch { throw new BoothError('The generation connection was interrupted. Please try again when you are ready.', 504); }
     if (!response.ok) {

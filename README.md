@@ -40,7 +40,7 @@ Flare produces 1008×1792 portrait output, normalized to 1080×1920. Sharp compo
 
 Cloudinary signs uploads on the server, writes to `Starville-Photobooth` and retries up to three times with a stable public ID. If archiving fails, the branded local download/share still works. Raw selfies are sent to OpenAI but are not uploaded to Cloudinary or written to disk by this application. Finished portraits are stored in Cloudinary.
 
-One metrics POST is scheduled after each successful live provider response with an image, independently of storage success. The configured URL is the supplied StarVille dashboard project. Metrics failures do not block delivery and are not retried. Paid generation is never automatically retried. The exact prompt/model/variation is logged server-side without credentials or selfie bytes.
+One metrics POST is scheduled after each successful live provider response with an image, independently of storage success. The configured URL is the supplied StarVille dashboard project. Metrics failures do not block delivery and are not retried. Paid generation is never automatically retried. Browser DevTools shows a styled, collapsible “StarVille · Generation prompt” group with the prompt, model, mode and variation. Server logs show the exact submitted prompt, request ID and resolved quality with ANSI-colored headings immediately before the provider request. Credentials and selfie bytes are omitted. Local server sample prompts are labeled as previews that are not sent.
 
 ## Deploy on Vercel
 

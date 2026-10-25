@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { advanceVariation, nextVariation, type Mode } from './variation';
+import { buildPrompt, modes } from '../shared/modes.mjs';
+import { logGenerationPrompt } from '../shared/logPrompt.mjs';
 
 type Screen = 'start' | 'modes' | 'capture' | 'preview' | 'loading' | 'result';
 type Portrait = { id: string; image: string; hostedUrl: string | null; preview: boolean; archiveFailed: boolean };
@@ -155,7 +157,10 @@ function Result({ portrait, onExplore }: { portrait: Portrait; onExplore: () => 
     <div className="portrait-frame"><img src={portrait.image} alt="Your generated StarVille future-self portrait with the StarVille logo" /></div>
     {portrait.preview && <div className="preview-badge">Design preview · sample portrait</div>}
     <div className="result-actions"><ArtButton src="Result-Screen/button_explore_again 1.png" label="Explore Again" onClick={onExplore} /><ArtButton src="Result-Screen/button_download 1.png" label="Download" onClick={download} /></div>
-    {canShare && <button className="share-button" onClick={share} disabled={sharing}>↗ {sharing ? 'Opening share…' : 'Share your future'}</button>}
+    {canShare && <button className="share-button" onClick={share} disabled={sharing} aria-label={sharing ? 'Opening share options' : 'Share your portrait'}>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 15V3m-4 4 4-4 4 4M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7" /></svg>
+      <span>{sharing ? 'Opening…' : 'Share'}</span>
+    </button>}
     <p className="result-message" role="status">{message || (portrait.archiveFailed ? 'Your portrait is ready. Download it to keep a copy.' : '')}</p>
   </section>;
 }
@@ -184,6 +189,7 @@ export default function App() {
     const timeout = setTimeout(() => abort.abort(), 290_000);
     const variation = nextVariation(mode);
     try {
+      logGenerationPrompt({ prompt: buildPrompt(mode, variation), mode: modes[mode].name, variation: `${variation + 1}/3 · ${modes[mode].variations[variation].name}` });
       const response = await fetch('/api/generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode, variation, image: capture }), signal: abort.signal });
       const result = await response.json().catch(() => { throw new Error('The connection was interrupted. Please try again.'); });
       if (!response.ok) throw new Error(result.error || 'We couldn’t create your portrait. Please try again.');
