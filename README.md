@@ -28,6 +28,8 @@ Fill the server credentials in `.env.local` before generating. This checkout has
 
 There is no QR, printing, Electron packaging or kiosk idle reset. On a public website the result remains available until the visitor chooses Explore Again or closes the page. Camera tracks stop when leaving capture.
 
+All screens fill the browser viewport using dynamic viewport height, including on mobile as the browser chrome changes. Controls account for device safe areas. Wider screens use responsive mode/result layouts over full-bleed artwork; camera capture matches the visible viewport crop. This fills the webpage without requesting the browser Fullscreen API.
+
 Each browser cycles independently through three variations per mode, stored in localStorage with an in-memory fallback. Only successful live results advance the sequence. Changing modes retains each mode's position. Visitors never select a variation. There is no global counter across devices.
 
 ## Generation and delivery

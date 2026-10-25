@@ -9,6 +9,15 @@ function ArtButton({ src, label, className = '', onClick, disabled = false }: { 
   return <button className={`art-button ${className}`} aria-label={label} onClick={onClick} disabled={disabled}><img src={asset(src)} alt={label} draggable={false} /></button>;
 }
 
+function WideHeading({ result = false }: { result?: boolean }) {
+  return <header className="wide-heading" aria-hidden="true">
+    <img src="/StarVille-Logo.png" alt="" />
+    <p className="brand-tagline">Skincare for a brighter you</p>
+    <h2>{result ? <>Your Future<br />Looks <em>Bright</em>✦</> : <>Pick Your<br /><em>Future Vibe</em>✦</>}</h2>
+    <p>{result ? 'Your vibe. Your story. Your moment.' : 'Take a selfie and step into a world that reflects your future self.'}</p>
+  </header>;
+}
+
 function LoopVideo({ src, poster }: { src: string; poster?: string }) {
   const ref = useRef<HTMLVideoElement>(null);
   const [failed, setFailed] = useState(false);
@@ -50,7 +59,9 @@ function Camera({ onCapture, onBack }: { onCapture: (image: string) => void; onB
       const source = video.current;
       if (!source?.videoWidth || source.readyState < 2) { setError('The camera paused. Please try again.'); setCount(null); shutterLock.current = false; return; }
       const canvas = document.createElement('canvas');
-      canvas.width = 720; canvas.height = 1280;
+      const aspect = source.clientWidth / source.clientHeight;
+      canvas.width = aspect >= 1 ? 1280 : Math.round(1280 * aspect);
+      canvas.height = aspect >= 1 ? Math.round(1280 / aspect) : 1280;
       const ctx = canvas.getContext('2d')!;
       // Match the cover crop and selfie mirroring shown in the live preview.
       const scale = Math.max(canvas.width / source.videoWidth, canvas.height / source.videoHeight);
@@ -139,6 +150,7 @@ function Result({ portrait, onExplore }: { portrait: Portrait; onExplore: () => 
   }
   return <section className="screen result-screen" aria-label="Your future looks bright">
     <img className="backdrop" src={asset('Result-Screen/image 36.png')} alt="" />
+    <WideHeading result />
     <h1 className="sr-only">Your Future Looks Bright. Your vibe. Your story. Your moment.</h1>
     <div className="portrait-frame"><img src={portrait.image} alt="Your generated StarVille future-self portrait with the StarVille logo" /></div>
     {portrait.preview && <div className="preview-badge">Design preview · sample portrait</div>}
@@ -193,6 +205,7 @@ export default function App() {
     </section>}
     {screen === 'modes' && <section className="screen mode-screen" aria-label="Pick Your Future Vibe">
       <img className="backdrop" src={asset('Era-Mode-Screen/Era-Mood-Screen-Background.png')} alt="" />
+      <WideHeading />
       <h1 className="sr-only">Pick Your Future Vibe</h1>
       <div className="mode-cards"><ArtButton src="Era-Mode-Screen/Boss-Mode.png" label="The Boss. Confident, ambitious, unstoppable." onClick={() => { setMode('boss'); setScreen('capture'); }} /><ArtButton src="Era-Mode-Screen/Explorer-Mode.png" label="The Explorer. Curious, bold, limitless." onClick={() => { setMode('explorer'); setScreen('capture'); }} /></div>
       <p className="data-note">Your selfie is used to create your portrait with AI.<br />Your finished portrait is saved to StarVille’s photo gallery.</p>
