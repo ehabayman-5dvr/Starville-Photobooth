@@ -20,10 +20,10 @@ function WideHeading({ result = false }: { result?: boolean }) {
   </header>;
 }
 
-function LoopVideo({ src, poster }: { src: string; poster?: string }) {
+function LoopVideo({ src }: { src: string }) {
   const ref = useRef<HTMLVideoElement>(null);
   const [failed, setFailed] = useState(false);
-  return <><video ref={ref} className="backdrop" src={asset(src)} poster={poster} autoPlay loop muted playsInline preload="auto" onError={() => setFailed(true)} onLoadedData={() => { ref.current?.play().catch(() => setFailed(true)); }} />{failed && <div className="video-fallback" aria-hidden="true" />}</>;
+  return <><video ref={ref} className="backdrop" src={asset(src)} autoPlay loop muted playsInline preload="auto" onError={() => setFailed(true)} onLoadedData={() => { ref.current?.play().catch(() => setFailed(true)); }} />{failed && <div className="video-fallback" aria-hidden="true" />}</>;
 }
 
 function Camera({ onCapture, onBack }: { onCapture: (image: string) => void; onBack: () => void }) {
@@ -205,7 +205,7 @@ export default function App() {
 
   return <main className="booth-shell"><div className={`stage stage-${screen}`}>
     {screen === 'start' && <section className="screen start-screen" aria-label="StarVille. See Your Future Self">
-      <LoopVideo src="Start-Screen/start.mp4" poster="/Screens-References/Start-Screen.png" />
+      <LoopVideo src="Start-Screen/start.mp4" />
       <h1 className="sr-only">StarVille · See Your Future Self</h1>
       <ArtButton className="start-button" src="Start-Screen/Start-Btn.png" label="Tap to start" onClick={() => setScreen('modes')} />
     </section>}

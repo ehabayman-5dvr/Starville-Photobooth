@@ -20,8 +20,6 @@ export default defineConfig(({ mode }) => {
         await mkdir('dist/Assets', { recursive: true });
         await cp('Assets', 'dist/Assets', { recursive: true });
         await cp('StarVille-Logo.png', 'dist/StarVille-Logo.png');
-        await mkdir('dist/Screens-References', { recursive: true });
-        await cp('Screens-References/Start-Screen.png', 'dist/Screens-References/Start-Screen.png');
       },
     }],
     server: { port: 5173 },
